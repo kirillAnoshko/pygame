@@ -18,6 +18,7 @@ pygame.display.set_caption("Моя программа") # Название пр�
 # Игрок 1
 player_width = 20 # Ширина игрока
 player_high = 105 # Высота игрока
+player_score = 0
 player_x = 50 # положение х
 player_y = screen_hight // 2 - player_high // 2 # положение у
 player = pygame.Rect((player_x, player_y, player_width, player_high)) # x, y, ширина, высота
@@ -26,6 +27,7 @@ player = pygame.Rect((player_x, player_y, player_width, player_high)) # x, y, ш
 # Игрок 2
 player_2_width = 20 # Ширина игрока
 player_2_high = 105 # Высота игрока
+player_2_score = 0
 player_2_x = screen_width - player_2_width - 50 # положение х
 player_2_y = screen_hight // 2 - player_2_high // 2 # положение у
 player_2 = pygame.Rect((player_2_x, player_2_y, player_2_width, player_2_high)) # х, у, ширина, высота
