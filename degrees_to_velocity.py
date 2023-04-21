@@ -1,5 +1,6 @@
 import math
 
+
 def degrees_to_velocity(degrees, speed) -> tuple:
     """
         Получает угол в градусах и скорость (по времени).
