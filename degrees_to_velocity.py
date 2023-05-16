@@ -1,6 +1,5 @@
 import math
 
-
 def degrees_to_velocity(degrees, speed) -> tuple:
     """
         Получает угол в градусах и скорость (по времени).
@@ -12,6 +11,6 @@ def degrees_to_velocity(degrees, speed) -> tuple:
     radians = math.radians(degrees)
     velocity_x = (math.sin(radians) * speed)
     velocity_y = (math.cos(radians) * speed)
-    velocity_x = velocity_x
-    velocity_y = velocity_y * -1  # в pygame Y растет вниз
+    velocity_x = round(velocity_x)
+    velocity_y = round(velocity_y) * -1  # в pygame Y растет вниз
     return(velocity_x, velocity_y)
