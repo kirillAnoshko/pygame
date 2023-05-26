@@ -7,11 +7,14 @@ from math import sin, cos, radians
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 FPS = 30
+BOUNCE_SND = 
+GOAL_SND =
 
 
 class Game:
     def __init__(self):
         pg.init()
+        pg.mixer.init()
         screen_info = pg.display.Info()
         self.screen = pg.display.set_mode(
             (screen_info.current_w, screen_info.current_h),
@@ -22,12 +25,13 @@ class Game:
             screen_rect=self.rect,
             center=(self.rect.width * 0.1, self.rect.centery),
             size=(self.rect.width * 0.01, self.rect.height * 0.1),
-            keys=(pg.K_w, pg.K_s)
+            keys=(pg.K_w, pg.K_s),
         )
         self.player_2 = Paddle(
             screen_rect=self.rect,
             center=(self.rect.width * 0.9, self.rect.centery),
             size=(self.rect.width * 0.01, self.rect.height * 0.1),
+            delay=100,
             is_automatic=True
         )
         self.ball = Ball(
@@ -67,6 +71,7 @@ class Game:
     def main_loop(self):
         game = True
         while game:
+            dt = self.clock.tick(FPS)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     game = False
@@ -76,7 +81,7 @@ class Game:
                 game = False
 
             self.screen.fill(BLACK)
-            self.paddles.update(self.ball)
+            self.paddles.update(self.ball, dt)
             self.paddles.draw(self.screen)
             self.check_goal()
             self.balls.update(self.paddles)
@@ -90,7 +95,6 @@ class Game:
                 (self.rect.centerx, self.rect.top)
             )
             pg.display.flip()
-            self.clock.tick(FPS)
         pg.quit()
 
 
@@ -104,6 +108,7 @@ class Paddle(pg.sprite.Sprite):
             keys=(pg.K_UP, pg.K_DOWN),
             is_automatic=False,
             speed=10,
+            delay=100
     ):
         super().__init__()
         self.image = pg.Surface(size)
@@ -115,8 +120,12 @@ class Paddle(pg.sprite.Sprite):
         self.speed = speed
         self.screen_rect = screen_rect
         self.score = 0
+        self.elapsed_time = 0
+        self.delay = delay
+        self.direction = 0
 
-    def update(self, ball):
+    def update(self, ball, dt):
+        self.prev_y = self.rect.centery
         keys = pg.key.get_pressed()
         if not self.is_automatic:
             if keys[self.keys[0]]:
@@ -125,14 +134,20 @@ class Paddle(pg.sprite.Sprite):
             if keys[self.keys[1]]:
                 if self.rect.bottom <= self.screen_rect.bottom:
                     self.rect.y += self.speed
-
+            if self.rect.centery < self.prev_y:
+                self.direction = 0
+            elif self.rect.centery > self.prev_y:
+                self.direction = 180
         else:
-            if ball.rect.centery < self.rect.centery:
-                if self.rect.top >= self.screen_rect.top:
-                    self.rect.y -= self.speed
-            if ball.rect.centery > self.rect.centery:
-                if self.rect.bottom <= self.screen_rect.bottom:
-                    self.rect.y += self.speed
+            self.elapsed_time += dt
+            if self.elapsed_time >= self.delay:
+                if ball.rect.centery < self.rect.centery:
+                    if self.rect.top >= self.screen_rect.top:
+                        self.rect.y -= self.speed
+                if ball.rect.centery > self.rect.centery:
+                    if self.rect.bottom <= self.screen_rect.bottom:
+                        self.rect.y += self.speed
+                self.elapsed_time = 0
 
 
 class Ball(pg.sprite.Sprite):
@@ -188,6 +203,10 @@ class Ball(pg.sprite.Sprite):
         for paddle in paddles:
             if self.rect.colliderect(paddle.rect):
                 self.direction *= -1
+                if paddle.direction == 0:
+                    self.direction += 30
+                if paddle.direction == 180:
+                    self.direction -= 30
 
     def throw_in(self):
         """
